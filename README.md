@@ -1,29 +1,69 @@
-# Deck Virtual Paste
+# Account Picker
 
-Tiny local-only Steam Deck Desktop Mode utility that types clipboard text as fake keyboard input instead of using normal paste.
+Steam Deck Desktop Mode / KDE utility for selecting a stored account and typing:
 
-## Install on Steam Deck
-
-```bash
-git clone --depth=1 https://github.com/S3DX/ar-deck.git
-cd ar-deck
-chmod +x install.sh
-./install.sh
+```text
+username → one Tab → password → stop
 ```
 
-## Usage
+The app does **not** press Enter.
 
-1. Copy password/text.
-2. Open Steam login.
-3. Launch `Deck Virtual Paste` from Desktop.
-4. Tap `TYPE CLIPBOARD IN 5 SECONDS`.
-5. Tap the Steam password box.
-6. Wait for auto-typing.
-7. Press login manually.
+## Files
 
-## Notes
+- `account-picker.py` — Tkinter UI and typing automation.
+- `install.sh` — local Steam Deck installer.
+- `accounts.example.tsv` — safe example format only. It does not contain real credentials.
 
-- It never uses Ctrl+V.
-- It never uses normal clipboard paste.
-- It does not display, store, or log clipboard content.
-- It types character-by-character using `xdotool` on X11 or `wtype` on Wayland when available.
+Real credentials must be created locally on the Steam Deck as `accounts.tsv` before running the installer. Do not commit real `accounts.tsv` to GitHub.
+
+## Account file format
+
+`accounts.tsv` must use this exact header:
+
+```text
+index	label	username	password
+```
+
+The app validates exactly 52 account rows, sequential indexes from 1 to 52, exactly four tab-separated fields, and no leading/trailing whitespace around usernames or passwords.
+
+## Install
+
+Use the one-shot install command generated outside the repository. It should:
+
+1. Clone this repo.
+2. Write `accounts.tsv` locally on the Steam Deck.
+3. Run `install.sh`.
+
+The installer places files at:
+
+```text
+~/.local/share/account-picker
+~/.local/bin/account-picker
+~/Desktop/Account Picker.desktop
+```
+
+## UI behavior
+
+- Fixed-size floating dark KDE-friendly window.
+- Search/filter box.
+- Scrollable account list.
+- Rows show label + username only.
+- Passwords are never displayed in the list.
+- 5-second countdown before typing.
+- Cancel stops countdown before typing begins.
+
+## Automation behavior
+
+When Fill is triggered:
+
+1. Type username.
+2. Press Tab exactly once.
+3. Type password.
+4. Stop.
+
+Backends:
+
+- `xdotool` on X11
+- `wtype` on Wayland
+
+If neither backend exists, the app reports the missing backend.
